@@ -1,9 +1,8 @@
+import random
 import time
 from rich import print as rprint
-import asyncio
+from event_loop import EventLoop
 
-
-# asyncio.sleep()
 
 class Awaitable:
     def __init__(self, value):
@@ -17,7 +16,10 @@ class Awaitable:
 
 async def small_step():
     rprint('[red]small step')
-    await Awaitable((time.sleep, 1))
+    t1 = time.time()
+    sleep_time = random.random()
+    await Awaitable(sleep_time)
+    assert time.time() - t1 > sleep_time
     rprint('[red]small step done')
     return 1
 
@@ -54,13 +56,15 @@ class Task:
                 # receive block
                 # func, arg = x.value  # 先不执行
                 # func(arg)
-                pass
+                loop.call_later(x.value, self.run)
         else:
             raise Exception('task already done')
 
 
 if __name__ == '__main__':
-    # 主控
     t = Task(main())
-    while True:
-        t.run()
+    loop = EventLoop()
+    loop.call_soon(t.run)
+    loop.call_later(2.1, loop.stop)
+
+    loop.run_forever()
