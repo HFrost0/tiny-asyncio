@@ -37,3 +37,8 @@ class EventLoop:
         for i in range(num):
             cb, args = self._ready.popleft()
             cb(*args)  # run callback
+
+
+loop = EventLoop()
+
+# todo get_running_loop

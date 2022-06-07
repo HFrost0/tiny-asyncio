@@ -1,8 +1,9 @@
 # tiny-asyncio
 
-The repository tries to build a tiny python asyncio, just for learning🙋‍♂️.
+A tiny python asyncio just for learning 🙋‍♂️
 
-## Awaitable
+## `yield from` and `await`
 
 ## Event Loop
 
+## Task and Future
