@@ -16,7 +16,17 @@ class Task(Future):
         except StopIteration as exc:
             super().set_result(exc.value)
         else:
-            result.add_done_callback(self.__step)  # current task is waiting result so
+            result.add_done_callback(self.__wakeup)  # current task is waiting result so
+
+    def __wakeup(self, future):
+        # future is the "father"
+        try:
+            future.result()
+        except BaseException as exc:
+            # self.__step(exc)
+            raise  # raise since future is not done yet
+        else:
+            self.__step()
 
 
 async def sleep(delay):

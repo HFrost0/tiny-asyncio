@@ -9,19 +9,24 @@ class Future:
     def __init__(self):
         self._callbacks = []
 
+    def result(self):
+        if not self._done:
+            raise Exception('Future not done yet')
+        return self._result
+
     def set_result(self, result):
         if self._done:
             raise Exception('Future is done')
         self._result = result
         self._done = True
         for cb in self._callbacks:
-            self._loop.call_soon(cb)
+            self._loop.call_soon(cb, self)
 
     def add_done_callback(self, fn):
-        # if self._done:
-        #     self._loop.call_soon(fn)
-        # else:
-        self._callbacks.append(fn)
+        if self._done:
+            self._loop.call_soon(fn)
+        else:
+            self._callbacks.append(fn)
 
     def __await__(self):
         if not self._done:
