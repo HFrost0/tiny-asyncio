@@ -24,7 +24,7 @@ class EventLoop:
             self.run_once()
             if self._stopping:
                 break
-            time.sleep(0.1)
+            time.sleep(0.1)  # avoid high cpu usage todo block instead of sleep
             print('Event loop run once')
 
     def run_once(self):
