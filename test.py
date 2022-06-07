@@ -30,8 +30,9 @@ async def main():
 
 
 if __name__ == '__main__':
-    Task(main())
-    Task(main())
+    for _ in range(10000):
+        Task(main())
     loop = event_loop.loop
-    loop.call_later(1, loop.stop)
+    loop.call_later(0.5, loop.stop)
     loop.run_forever()
+    print('Finished')
