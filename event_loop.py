@@ -1,6 +1,7 @@
 import heapq
 from collections import deque
 import time
+from tasks import Task
 
 
 class EventLoop:
@@ -24,11 +25,12 @@ class EventLoop:
             self.run_once()
             if self._stopping:
                 break
-            time.sleep(0.1)  # avoid high cpu usage todo block instead of sleep
+            time.sleep(0.1)  # avoid high cpu usage by now
             print('Event loop run once')
 
     def run_once(self):
         now = time.time()
+        # todo learn selectors and block the event loop here just like asyncio
         while self._scheduled and self._scheduled[0][0] < now:  # at least one schedule
             _, cb, args = heapq.heappop(self._scheduled)
             self._ready.append((cb, args))
@@ -37,6 +39,23 @@ class EventLoop:
         for i in range(num):
             cb, args = self._ready.popleft()
             cb(*args)  # run callback
+
+    def create_task(self, coro):
+        task = Task(coro, loop=self)
+        return task
+
+    def run_until_complete(self, coro):
+        # todo type check... ensure future
+        future = self.create_task(coro)
+        future.add_done_callback(_run_until_complete_cb)
+
+        self.run_forever()
+
+        return future.result()
+
+
+def _run_until_complete_cb(fut):
+    fut.get_loop().stop()
 
 
 loop = EventLoop()

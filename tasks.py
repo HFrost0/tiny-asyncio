@@ -3,8 +3,8 @@ import event_loop
 
 
 class Task(Future):
-    def __init__(self, coro):
-        super().__init__()
+    def __init__(self, coro, loop=None):
+        super().__init__(loop=loop)
         self._coro = coro
         self._loop.call_soon(self.__step)
 
@@ -16,7 +16,9 @@ class Task(Future):
         except StopIteration as exc:
             super().set_result(exc.value)
         else:
-            result.add_done_callback(self.__wakeup)  # current task is waiting result so
+            # current task is waiting result to complete,
+            # just add a callback on that future and disappear in event loop
+            result.add_done_callback(self.__wakeup)
 
     def __wakeup(self, future):
         # future is the "father"
@@ -31,5 +33,5 @@ class Task(Future):
 
 async def sleep(delay):
     future = Future()
-    event_loop.loop.call_later(delay, future.set_result, None)
+    event_loop.loop.call_later(delay, future.set_result, None)  # todo get_running_loop
     return await future  # yield a empty future

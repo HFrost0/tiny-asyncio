@@ -2,7 +2,7 @@ import random
 import time
 from rich import print as rprint
 import event_loop
-from tasks import sleep, Task
+from tasks import sleep
 
 
 async def small_step():
@@ -30,9 +30,6 @@ async def main():
 
 
 if __name__ == '__main__':
-    for _ in range(10):
-        Task(main())
     loop = event_loop.loop
-    loop.call_later(1.5, loop.stop)
-    loop.run_forever()
+    loop.run_until_complete(main())
     print('Finished')
