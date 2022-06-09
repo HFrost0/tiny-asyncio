@@ -3,10 +3,10 @@
 A tiny python asyncio just for learning 🙋‍♂️, document below is my personal notes during the learning, may change
 frequently.
 
-## Events Loop
+## Event Loop
 
-Events loop is just a `while True` loop, the basic functionality of events loop is to keep find out which functions can
-be executed and execute them. Events loop's implementation I think is not related to coroutine or generator, it's just
+Event loop is just a `while True` loop, the basic functionality of event loop is to keep find out which functions can
+be executed and execute them. Event loop's implementation I think is not related to coroutine or generator, it's just
 a scheduler used to execute functions (even regardless their return value).
 
 ## Task and Future
@@ -22,7 +22,7 @@ __iter__ = __await__
 ```
 
 yield itself. and `Task`'s `__step` will receive bottom future object, and add done callback to them. Notice that
-all function will be executed by a global events loop including `__step`. I think this part is the core part in asyncio.
+all function will be executed by a global event loop including `__step`. I think this part is the core part in asyncio.
 
 ## `yield from` and `await`
 
@@ -35,6 +35,12 @@ x = yield from coro
 
 `StopIteration`'s value will be assigned to x, notice that if we call `return` in generator or coroutine function
 it will raise a `StopIteration`.
+
+## todos
+
+- [ ] get_running_loop / get_event_loop
+- [ ] selectors block
+- [ ] network IO
 
 ## quote
 * [cpython](https://github.com/python/cpython)
