@@ -1,4 +1,4 @@
-import event_loop
+import events
 
 
 class Future:
@@ -6,7 +6,7 @@ class Future:
     _result = None
 
     def __init__(self, loop=None):
-        self._loop = loop if loop is not None else event_loop.loop
+        self._loop = loop if loop is not None else events.get_event_loop()
         self._callbacks = []
 
     def get_loop(self):

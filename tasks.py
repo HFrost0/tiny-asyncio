@@ -1,5 +1,5 @@
 from futures import Future
-import event_loop
+import events
 
 
 class Task(Future):
@@ -33,5 +33,5 @@ class Task(Future):
 
 async def sleep(delay):
     future = Future()
-    event_loop.loop.call_later(delay, future.set_result, None)  # todo get_running_loop
+    events.get_event_loop().call_later(delay, future.set_result, None)  # todo get_running_loop
     return await future  # yield a empty future

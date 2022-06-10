@@ -1,7 +1,7 @@
 import random
 import time
 from rich import print as rprint
-import event_loop
+import events
 from tasks import sleep
 
 
@@ -30,6 +30,6 @@ async def main():
 
 
 if __name__ == '__main__':
-    loop = event_loop.loop
+    loop = events.get_event_loop()
     loop.run_until_complete(main())
     print('Finished')

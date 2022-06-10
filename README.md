@@ -38,7 +38,7 @@ it will raise a `StopIteration`.
 
 ## todos
 
-- [ ] get_running_loop / get_event_loop
+- [x] get_event_loop
 - [ ] selectors block
 - [ ] network IO
 
