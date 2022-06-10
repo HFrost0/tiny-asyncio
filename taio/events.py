@@ -1,8 +1,8 @@
 import heapq
+import threading
 from collections import deque
 import time
-from tasks import Task
-import threading
+from . import tasks
 
 
 class EventLoop:
@@ -42,7 +42,7 @@ class EventLoop:
             cb(*args)  # run callback
 
     def create_task(self, coro):
-        task = Task(coro, loop=self)
+        task = tasks.Task(coro, loop=self)
         return task
 
     def run_until_complete(self, coro):

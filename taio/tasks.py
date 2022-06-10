@@ -1,8 +1,8 @@
-from futures import Future
-import events
+from . import futures
+from . import events
 
 
-class Task(Future):
+class Task(futures.Future):
     def __init__(self, coro, loop=None):
         super().__init__(loop=loop)
         self._coro = coro
@@ -32,6 +32,6 @@ class Task(Future):
 
 
 async def sleep(delay):
-    future = Future()
-    events.get_event_loop().call_later(delay, future.set_result, None)  # todo get_running_loop
+    future = futures.Future()
+    events.get_event_loop().call_later(delay, future.set_result, None)
     return await future  # yield a empty future

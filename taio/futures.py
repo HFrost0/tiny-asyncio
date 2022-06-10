@@ -1,4 +1,4 @@
-import events
+from . import events
 
 
 class Future:

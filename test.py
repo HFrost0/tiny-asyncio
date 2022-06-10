@@ -1,15 +1,14 @@
 import random
 import time
 from rich import print as rprint
-import events
-from tasks import sleep
+import taio
 
 
 async def small_step():
     rprint('[red]small step')
     t1 = time.time()
     sleep_time = random.random()
-    await sleep(sleep_time)
+    await taio.sleep(sleep_time)
     assert time.time() - t1 > sleep_time
     rprint('[red]small step done')
     return 1
@@ -30,6 +29,6 @@ async def main():
 
 
 if __name__ == '__main__':
-    loop = events.get_event_loop()
+    loop = taio.get_event_loop()
     loop.run_until_complete(main())
     print('Finished')
