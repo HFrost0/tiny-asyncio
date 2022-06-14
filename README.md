@@ -36,13 +36,16 @@ x = yield from coro
 `StopIteration`'s value will be assigned to x, notice that if we call `return` in generator or coroutine function
 it will raise a `StopIteration`.
 
+## Selectors
+
 ## todos
 
 - [x] get_event_loop
-- [ ] selectors block
-- [ ] network IO
+- [x] selectors block
+- [ ] async IO
 
 ## quote
+
 * [cpython](https://github.com/python/cpython)
 
 * [https://www.bilibili.com/video/BV1AB4y197k6](https://www.bilibili.com/video/BV1AB4y197k6)

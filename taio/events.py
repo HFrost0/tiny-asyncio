@@ -1,4 +1,5 @@
 import heapq
+import selectors
 import threading
 from collections import deque
 import time
@@ -10,6 +11,7 @@ class EventLoop:
         self._ready = deque()
         self._scheduled = []
         self._stopping = False
+        self._selector = selectors.DefaultSelector()
 
     def call_soon(self, callback, *args):
         self._ready.append((callback, args))
@@ -26,13 +28,21 @@ class EventLoop:
             self.run_once()
             if self._stopping:
                 break
-            time.sleep(0.1)  # avoid high cpu usage by now
             print('Event loop run once')
 
     def run_once(self):
-        now = time.time()
-        # todo learn selectors and block the event loop here just like asyncio
-        while self._scheduled and self._scheduled[0][0] < now:  # at least one schedule
+        # select and block here
+        timeout = None  # None means wait forever until some fd is ready
+        if self._ready or self._stopping:
+            timeout = 0
+        if self._scheduled:
+            when = self._scheduled[0][0]
+            timeout = when - time.time()
+        # notice that no registered IO by now, so this line just block event loop for timeout secs
+        # (useful with scheduled)
+        self._selector.select(timeout)
+
+        while self._scheduled and self._scheduled[0][0] < time.time():  # at least one schedule
             _, cb, args = heapq.heappop(self._scheduled)
             self._ready.append((cb, args))
 
@@ -65,7 +75,7 @@ class EventLoopPolicy:
     def __init__(self):
         self._local = self._Local()
 
-    def get_event_loop(self):
+    def get_event_loop(self) -> EventLoop:
         if self._local._loop is None and not self._local._set_called \
                 and threading.current_thread() is threading.main_thread():
             self.set_event_loop(self.new_event_loop())
@@ -87,7 +97,7 @@ _event_loop_policy = None
 _lock = threading.Lock()
 
 
-def get_event_loop_policy():
+def get_event_loop_policy() -> EventLoopPolicy:
     global _event_loop_policy
     with _lock:
         if _event_loop_policy is None:
