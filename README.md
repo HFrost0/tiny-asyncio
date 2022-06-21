@@ -53,4 +53,3 @@ official python [selectors](https://docs.python.org/3/library/selectors.html) mo
 
 * [cpython](https://github.com/python/cpython)
 
-* [https://www.bilibili.com/video/BV1AB4y197k6](https://www.bilibili.com/video/BV1AB4y197k6)
