@@ -1,68 +1,5 @@
-import heapq
-import selectors
 import threading
-from collections import deque
-import time
-from . import tasks
-
-
-class EventLoop:
-    def __init__(self):
-        self._ready = deque()
-        self._scheduled = []
-        self._stopping = False
-        self._selector = selectors.DefaultSelector()
-
-    def call_soon(self, callback, *args):
-        self._ready.append((callback, args))
-
-    def call_later(self, delay, callback, *args):
-        t = time.time() + delay
-        heapq.heappush(self._scheduled, (t, callback, args))
-
-    def stop(self):
-        self._stopping = True
-
-    def run_forever(self):
-        while True:
-            self.run_once()
-            if self._stopping:
-                break
-            print('Event loop run once')
-
-    def run_once(self):
-        # select and block here
-        timeout = None  # None means wait forever until some fd is ready
-        if self._ready or self._stopping:
-            timeout = 0
-        if self._scheduled:
-            when = self._scheduled[0][0]
-            timeout = when - time.time()
-        # notice that no registered IO by now, so this line just block event loop for timeout secs
-        # (useful with scheduled)
-        self._selector.select(timeout)
-
-        while self._scheduled and self._scheduled[0][0] < time.time():  # at least one schedule
-            _, cb, args = heapq.heappop(self._scheduled)
-            self._ready.append((cb, args))
-
-        num = len(self._ready)
-        for i in range(num):
-            cb, args = self._ready.popleft()
-            cb(*args)  # run callback
-
-    def create_task(self, coro):
-        task = tasks.Task(coro, loop=self)
-        return task
-
-    def run_until_complete(self, coro):
-        # todo type check... ensure future
-        future = self.create_task(coro)
-        future.add_done_callback(_run_until_complete_cb)
-
-        self.run_forever()
-
-        return future.result()
+from .selector_events import *
 
 
 class EventLoopPolicy:
@@ -108,7 +45,3 @@ def get_event_loop_policy() -> EventLoopPolicy:
 def get_event_loop():
     # _get_running_loop()
     return get_event_loop_policy().get_event_loop()
-
-
-def _run_until_complete_cb(fut):
-    fut.get_loop().stop()

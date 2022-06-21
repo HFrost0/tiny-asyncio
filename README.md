@@ -38,11 +38,16 @@ it will raise a `StopIteration`.
 
 ## Selectors
 
+official python [selectors](https://docs.python.org/3/library/selectors.html) module
+
 ## todos
 
 - [x] get_event_loop
 - [x] selectors block
-- [ ] async IO
+- [x] async sock connect
+- [ ] async sock send
+- [ ] async sock recv
+- [ ] gather
 
 ## quote
 

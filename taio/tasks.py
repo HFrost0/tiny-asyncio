@@ -9,7 +9,7 @@ class Task(futures.Future):
         self._loop.call_soon(self.__step)
 
     def __step(self):
-        if self._done:
+        if self.done():
             raise Exception('Task all ready done')
         try:
             result = self._coro.send(None)  # result is the future object yield from bottom
@@ -26,6 +26,7 @@ class Task(futures.Future):
             future.result()
         except BaseException as exc:
             # self.__step(exc)
+            print(exc)
             raise  # raise since future is not done yet
         else:
             self.__step()

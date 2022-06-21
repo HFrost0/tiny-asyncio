@@ -9,6 +9,9 @@ class Future:
         self._loop = loop if loop is not None else events.get_event_loop()
         self._callbacks = []
 
+    def done(self):
+        return self._done
+
     def get_loop(self):
         return self._loop
 
@@ -41,8 +44,3 @@ class Future:
         return self.result()
 
     __iter__ = __await__
-
-
-if __name__ == '__main__':
-    a = Future()
-    b = Future()
