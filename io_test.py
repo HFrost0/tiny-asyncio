@@ -8,7 +8,8 @@ async def main():
     sock.setblocking(False)
     loop = taio.get_event_loop()
     await loop.sock_connect(sock, ('127.0.0.1', 6666))
-    # sock.send(b'what')  # todo this line will cause ConnectionResetError in server side due to no blocking
+    sock.send(b'taio')
+    sock.close()
     return sock
 
 
