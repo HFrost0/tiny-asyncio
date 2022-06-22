@@ -8,12 +8,18 @@ async def main():
     sock.setblocking(False)
     loop = taio.get_event_loop()
     await loop.sock_connect(sock, ('127.0.0.1', 6666))
-    sock.send(b'taio')
+    sock.send(b'hey server, Im taio')
+    data = await loop.sock_recv(sock, 1024)
+    print(data)
     sock.close()
-    return sock
 
 
 if __name__ == '__main__':
     loop = taio.get_event_loop()
-    sock = loop.run_until_complete(main())
-    print(sock)
+    loop.create_task(main())
+    loop.create_task(main())
+    loop.create_task(main())
+    loop.create_task(main())
+    loop.create_task(main())
+    loop.call_later(1.5, loop.stop)
+    loop.run_forever()

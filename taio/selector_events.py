@@ -35,7 +35,7 @@ class EventLoop:
         timeout = None  # None means wait forever until some fd is ready
         if self._ready or self._stopping:
             timeout = 0
-        if self._scheduled:
+        elif self._scheduled:
             when = self._scheduled[0][0]
             timeout = when - time.time()
 
@@ -67,6 +67,27 @@ class EventLoop:
     def add_reader(self, fd, callback, *args):
         self._selector.register(fd, selectors.EVENT_READ, data=(callback, args))
         # return callback
+
+    def remove_reader(self, fd):  # todo distinguish read and write
+        self._selector.unregister(fd)
+
+    async def sock_recv(self, sock, n):
+        try:
+            return sock.recv(n)
+        except BlockingIOError:
+            pass
+        fut = self.create_future()
+        self.add_reader(sock.fileno(), self._sock_recv, fut, sock, n)
+        fut.add_done_callback(functools.partial(self._sock_read_done, sock.fileno()))
+        return await fut
+
+    def _sock_recv(self, fut, sock, n):
+        if fut.done():
+            return
+        fut.set_result(sock.recv(n))
+
+    def _sock_read_done(self, fd, fut):
+        self.remove_reader(fd)
 
     async def sock_connect(self, sock, address):
         """just create a sock and wait for connected"""
