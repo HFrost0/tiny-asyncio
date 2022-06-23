@@ -48,14 +48,12 @@ def gather(*coros_or_futures):
                 results.append(c.result())
             outer.set_result(results)
 
-    arg_to_fut = {}
     nfuts = 0
     nfinished = 0
     children = []
     for arg in coros_or_futures:
-        fut = loop.create_task(arg)  # ensure future
+        fut = loop.create_task(arg)  # ensure future 🧐 fut is task actually
         nfuts += 1
-        arg_to_fut[arg] = fut
         fut.add_done_callback(_done_callback)
         children.append(fut)
     outer = loop.create_future()

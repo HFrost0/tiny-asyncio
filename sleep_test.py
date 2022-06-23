@@ -23,7 +23,11 @@ async def big_step():
 
 async def main():
     rprint('[green]main function run')
-    big_result = await big_step()
+    big_result = await taio.gather(
+        big_step(),
+        big_step(),
+        big_step()
+    )
     rprint(f'[green]main function done {big_result}')
     return big_result
 
