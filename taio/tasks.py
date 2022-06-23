@@ -32,6 +32,36 @@ class Task(futures.Future):
             self.__step()
 
 
+def gather(*coros_or_futures):
+    loop = events.get_event_loop()
+    if not coros_or_futures:
+        outer = loop.create_future()
+        outer.set_result([])
+        return outer
+
+    def _done_callback(fut):
+        nonlocal nfinished
+        nfinished += 1
+        if nfinished == nfuts:
+            results = []
+            for c in children:
+                results.append(c.result())
+            outer.set_result(results)
+
+    arg_to_fut = {}
+    nfuts = 0
+    nfinished = 0
+    children = []
+    for arg in coros_or_futures:
+        fut = loop.create_task(arg)  # ensure future
+        nfuts += 1
+        arg_to_fut[arg] = fut
+        fut.add_done_callback(_done_callback)
+        children.append(fut)
+    outer = loop.create_future()
+    return outer
+
+
 async def sleep(delay):
     future = futures.Future()
     events.get_event_loop().call_later(delay, future.set_result, None)
