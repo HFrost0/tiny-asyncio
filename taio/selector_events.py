@@ -98,7 +98,7 @@ class EventLoop:
             # once fd is writeable, set future done
             self.add_writer(sock.fileno(), self._sock_connect_cb, fut, sock, address)
             # once writeable, unregister fd
-            fut.add_done_callback(functools.partial(self._sock_write_done, sock.fileno()))
+            fut.add_done_callback(functools.partial(self._sock_read_done, sock.fileno()))
         else:
             fut.set_result(None)
         return await fut
@@ -110,6 +110,24 @@ class EventLoop:
         if fut.done():
             return  # todo asyncio use cancel to avoid this
         fut.set_result(None)
+
+    async def sock_accept(self, sock):
+        try:
+            conn, address = sock.accept()
+            conn.setblocking(False)
+            return conn, address
+        except BlockingIOError:
+            fut = self.create_future()
+            self.add_reader(sock.fileno(), self._sock_accept, fut, sock)
+            fut.add_done_callback(functools.partial(self._sock_read_done, sock.fileno()))
+        return await fut
+
+    def _sock_accept(self, fut, sock):
+        if fut.done():
+            return
+        conn, address = sock.accept()
+        conn.setblocking(False)
+        fut.set_result((conn, address))
 
     def create_task(self, coro):
         task = tasks.Task(coro, loop=self)

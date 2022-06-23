@@ -44,8 +44,7 @@ official python [selectors](https://docs.python.org/3/library/selectors.html) mo
 
 - [x] get_event_loop
 - [x] selectors block
-- [x] async sock connect
-- [x] async sock recv
+- [x] async sock
 - [ ] gather
 
 ## quote
