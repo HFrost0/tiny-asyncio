@@ -11,14 +11,14 @@ async def small_step():
     await taio.sleep(sleep_time)
     assert time.time() - t1 > sleep_time
     rprint('[red]small step done')
-    return 1
+    return sleep_time
 
 
 async def big_step():
     rprint('[blue]big step')
     small_result = await small_step()
     rprint('[blue]big step done')
-    return small_result * 10
+    return small_result
 
 
 async def main():
@@ -34,5 +34,6 @@ async def main():
 
 if __name__ == '__main__':
     loop = taio.get_event_loop()
+    t = time.time()
     loop.run_until_complete(main())
-    print('Finished')
+    print(f'Finished {time.time() - t}')
