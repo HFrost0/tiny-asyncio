@@ -45,6 +45,7 @@ official python [selectors](https://docs.python.org/3/library/selectors.html) mo
 - [x] get_event_loop
 - [x] selectors block
 - [x] async sock
+- [ ] bug: broken pipe in c10k
 - [x] gather
 - [ ] creat server
 - [ ] cancel
