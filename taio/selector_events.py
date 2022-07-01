@@ -14,11 +14,14 @@ class EventLoop:
         self._stopping = False
         self._selector = selectors.DefaultSelector()
 
+    def time(self):
+        return time.monotonic()
+
     def call_soon(self, callback, *args):
         self._ready.append((callback, args))
 
     def call_later(self, delay, callback, *args):
-        t = time.time() + delay
+        t = self.time() + delay
         heapq.heappush(self._scheduled, (t, callback, args))
 
     def stop(self):
@@ -38,7 +41,7 @@ class EventLoop:
             timeout = 0
         elif self._scheduled:
             when = self._scheduled[0][0]
-            timeout = when - time.time()
+            timeout = when - self.time()
 
         event_list = self._selector.select(timeout)
         # process event list
@@ -47,7 +50,7 @@ class EventLoop:
             cb, args = key.data
             self._ready.append((cb, args))
 
-        while self._scheduled and self._scheduled[0][0] < time.time():  # at least one schedule
+        while self._scheduled and self._scheduled[0][0] < self.time():  # at least one schedule
             _, cb, args = heapq.heappop(self._scheduled)
             self._ready.append((cb, args))
 

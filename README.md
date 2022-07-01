@@ -46,8 +46,7 @@ official python [selectors](https://docs.python.org/3/library/selectors.html) mo
 - [x] selectors block
 - [x] async sock
 - [x] gather
-- [x] exception handle, may with bug
-- [ ] bug: schedule time equal
+- [x] exception handle, may with bug 🤔
 - [ ] creat server
 - [ ] cancel
 
