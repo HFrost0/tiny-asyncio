@@ -1,7 +1,7 @@
 import random
 import socket
 import time
-import threading
+from concurrent.futures import ThreadPoolExecutor
 
 
 def accept(s: socket.socket):
@@ -17,13 +17,11 @@ def accept(s: socket.socket):
 
 
 if __name__ == '__main__':
+    pool = ThreadPoolExecutor()
     server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_sock.bind(('', 6666))
     server_sock.listen()
-    threads = []
     while True:
         s, addr = server_sock.accept()
         print(f'Connection: {addr}')
-        t = threading.Thread(target=accept, args=(s, ))
-        threads.append(t)
-        t.start()
+        pool.submit(accept, s)
