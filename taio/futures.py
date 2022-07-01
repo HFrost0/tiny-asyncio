@@ -24,6 +24,11 @@ class Future:
             raise self._exception
         return self._result
 
+    def exception(self):
+        if not self._done:
+            raise Exception('Future not done yet')
+        return self._exception
+
     def __schedule_callbacks(self):
         for cb in self._callbacks:
             self._loop.call_soon(cb, self)

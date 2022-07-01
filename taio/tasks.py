@@ -15,9 +15,11 @@ class Task(futures.Future):
             if exc is None:
                 result = self._coro.send(None)  # result is the future object yield from bottom
             else:
-                result = self._coro.throw(exc)
+                result = self._coro.throw(exc)  # throw exception to coro in case there are try except to deal with
         except StopIteration as exc:
             super().set_result(exc.value)
+        except BaseException as exc:
+            super().set_exception(exc)
         else:
             # current task is waiting result to complete,
             # just add a callback on that future and disappear in event loop
@@ -33,7 +35,7 @@ class Task(futures.Future):
             self.__step()
 
 
-def gather(*coros_or_futures):
+def gather(*coros_or_futures, return_exceptions=False):
     loop = events.get_event_loop()
     if not coros_or_futures:
         outer = loop.create_future()
@@ -43,10 +45,23 @@ def gather(*coros_or_futures):
     def _done_callback(fut):
         nonlocal nfinished
         nfinished += 1
+
+        if outer.done():
+            return
+
+        if not return_exceptions:
+            exc = fut.exception()
+            if exc is not None:
+                outer.set_exception(exc)
+                return
+
         if nfinished == nfuts:
             results = []
             for c in children:
-                results.append(c.result())
+                res = c.exception()
+                if res is None:
+                    res = c.result()  # no exception here
+                results.append(res)
             outer.set_result(results)
 
     nfuts = 0
