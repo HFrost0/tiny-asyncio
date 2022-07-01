@@ -1,6 +1,7 @@
 import functools
 import heapq
 import selectors
+import socket
 from collections import deque
 import time
 from . import tasks, futures
@@ -28,7 +29,7 @@ class EventLoop:
             self.run_once()
             if self._stopping:
                 break
-            print('Event loop run once')
+            # print('Event loop run once')
 
     def run_once(self):
         # select and block here
@@ -84,10 +85,20 @@ class EventLoop:
     def _sock_recv(self, fut, sock, n):
         if fut.done():
             return
-        fut.set_result(sock.recv(n))
+        try:
+            data = sock.recv(n)
+        except BlockingIOError:
+            return  # try again next time
+        except BaseException as exc:
+            fut.set_exception(exc)
+        else:
+            fut.set_result(data)
 
     def _sock_read_done(self, fd, fut):
         self.remove_reader(fd)
+
+    def _sock_write_done(self, fd, fut):
+        self.remove_writer(fd)
 
     async def sock_connect(self, sock, address):
         """just create a sock and wait for connected"""
@@ -98,18 +109,28 @@ class EventLoop:
             # once fd is writeable, set future done
             self.add_writer(sock.fileno(), self._sock_connect_cb, fut, sock, address)
             # once writeable, unregister fd
-            fut.add_done_callback(functools.partial(self._sock_read_done, sock.fileno()))
+            fut.add_done_callback(functools.partial(self._sock_write_done, sock.fileno()))
+        except BaseException as exc:
+            fut.set_exception(exc)
         else:
             fut.set_result(None)
         return await fut
 
-    def _sock_write_done(self, fd, fut):
-        self.remove_writer(fd)
-
     def _sock_connect_cb(self, fut, sock, address):
         if fut.done():
             return  # todo asyncio use cancel to avoid this
-        fut.set_result(None)
+        try:
+            err = sock.getsockopt(socket.SOL_SOCKET, socket.SO_ERROR)
+            if err != 0:
+                # Jump to any except clause below.
+                raise OSError(err, f'Connect call failed {address}')
+        except BlockingIOError:
+            # socket is still registered, the callback will be retried later
+            pass
+        except BaseException as exc:
+            fut.set_exception(exc)
+        else:
+            fut.set_result(None)
 
     async def sock_accept(self, sock):
         try:
@@ -125,9 +146,15 @@ class EventLoop:
     def _sock_accept(self, fut, sock):
         if fut.done():
             return
-        conn, address = sock.accept()
-        conn.setblocking(False)
-        fut.set_result((conn, address))
+        try:
+            conn, address = sock.accept()
+            conn.setblocking(False)
+        except BlockingIOError:
+            pass
+        except BaseException as exc:
+            fut.set_exception(exc)
+        else:
+            fut.set_result((conn, address))
 
     def create_task(self, coro):
         task = tasks.Task(coro, loop=self)
