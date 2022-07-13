@@ -9,7 +9,7 @@ async def client(message):
     sock = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
     sock.setblocking(False)
     loop = taio.get_event_loop()
-    await taio.sleep(random.random())
+    # await taio.sleep(random.random())
     await loop.sock_connect(sock, ('127.0.0.1', 6666))
     sock.send(message)
     data = await loop.sock_recv(sock, 1024)
@@ -21,7 +21,11 @@ async def client(message):
 async def main():
     cors = []
     for i in range(10000):
-        cors.append(client(f'{i} taio client'.encode('utf8')))
+        sock = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
+        sock.connect(('127.0.0.1', 6666))
+        sock.setblocking(False)
+
+    cors.append(client(f'{i} taio client'.encode('utf8')))
     datas = await taio.gather(*cors, return_exceptions=True)
     print('All: ', datas)
 

@@ -1,9 +1,11 @@
 import socket
 import selectors
+import time
 
 
 def accept_connect(server: socket.socket, sel: selectors.DefaultSelector):
     client, addr = server.accept()
+    print(f'Connection: {addr}')
     client.setblocking(False)
     sel.register(client.fileno(), selectors.EVENT_READ, data=(echo, client, sel))
 
@@ -11,12 +13,13 @@ def accept_connect(server: socket.socket, sel: selectors.DefaultSelector):
 def echo(sock: socket.socket, sel: selectors.DefaultSelector):
     data = sock.recv(1024)
     if data:
-        print(f'Echo: {data}')
         sock.send(data)  # echo back
+        # time.sleep(0.01)
+        print(f'Echo: {data}')
     else:
-        print(f'Remove: {sock}')
         sel.unregister(sock.fileno())
         sock.close()
+        print(f'Remove: {sock}')
 
 
 def startup_server(ip, port):
@@ -36,4 +39,4 @@ def startup_server(ip, port):
 
 
 if __name__ == '__main__':
-    startup_server('', 6666)
+    startup_server('', 6667)
