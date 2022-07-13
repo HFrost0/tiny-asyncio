@@ -1,3 +1,6 @@
+"""
+DO NOT use this server for c10k test!
+"""
 import random
 import socket
 import time
@@ -5,15 +8,12 @@ import threading
 
 
 def accept(s: socket.socket):
-    while True:
-        data = s.recv(1024)
-        if data:
-            # time.sleep(1)  # slow down respond
-            s.send(data)
-            print(f'Echo: {data}')
-        else:
-            print(f'Remove: {s}')
-            break
+    while data := s.recv(1024):
+        # time.sleep(1)  # slow down respond
+        s.send(data)
+        print(f'Echo: {data}')
+    s.close()
+    print(f'Remove: {s}')
 
 
 if __name__ == '__main__':
