@@ -1,6 +1,5 @@
 import socket
 import selectors
-import time
 
 
 def accept_connect(server: socket.socket, sel: selectors.DefaultSelector):
@@ -14,7 +13,7 @@ def echo(sock: socket.socket, sel: selectors.DefaultSelector):
     data = sock.recv(1024)
     if data:
         sock.send(data)  # echo back
-        # time.sleep(0.01)
+        # sum(range(100000))  # cpu bound task
         print(f'Echo: {data}')
     else:
         sel.unregister(sock.fileno())
@@ -39,4 +38,4 @@ def startup_server(ip, port):
 
 
 if __name__ == '__main__':
-    startup_server('', 6667)
+    startup_server('', 6666)

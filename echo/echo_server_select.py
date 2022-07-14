@@ -1,6 +1,5 @@
 import socket
 import select
-import time
 
 
 def startup_server(ip, port):
@@ -22,8 +21,9 @@ def startup_server(ip, port):
             else:  # client want to send to server
                 data = s.recv(1024)
                 if data:
-                    print(f'Echo: {data}')
+                    # sum(range(100000))  # cpu bound task
                     s.send(data)  # echo back
+                    print(f'Echo: {data}')
                 else:
                     print(f'Remove: {s}')
                     s.close()

@@ -1,13 +1,11 @@
-import random
 import socket
-import time
 from concurrent.futures import ThreadPoolExecutor
 
 
 def accept(s: socket.socket):
     while data := s.recv(1024):
-        # time.sleep(1)  # slow down respond
         s.send(data)
+        # sum(range(100000))  # slow down respond
         print(f'Echo: {data}')
     s.close()
     print(f'Remove: {s}')

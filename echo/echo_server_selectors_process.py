@@ -1,7 +1,6 @@
 import socket
 import selectors
 import multiprocessing as mp
-import time
 
 
 def worker(server: socket.socket, sema: mp.Semaphore, sema2: mp.Semaphore):
@@ -21,7 +20,7 @@ def worker(server: socket.socket, sema: mp.Semaphore, sema2: mp.Semaphore):
             data = client.recv(1024)
             if data:
                 client.send(data)
-                # time.sleep(0.01)
+                # sum(range(100000))  # cpu bound task
                 print(f'Echo {data}')
             else:
                 sel.unregister(client.fileno())
