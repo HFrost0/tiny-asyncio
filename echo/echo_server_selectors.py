@@ -1,41 +1,41 @@
 import socket
 import selectors
 
-
-def accept_connect(server: socket.socket, sel: selectors.DefaultSelector):
-    client, addr = server.accept()
-    print(f'Connection: {addr}')
-    client.setblocking(False)
-    sel.register(client.fileno(), selectors.EVENT_READ, data=(echo, client, sel))
+from echo.base_server import BaseServer
 
 
-def echo(sock: socket.socket, sel: selectors.DefaultSelector):
-    data = sock.recv(1024)
-    if data:
-        sock.send(data)  # echo back
-        # sum(range(100000))  # cpu bound task
-        print(f'Echo: {data}')
-    else:
-        sel.unregister(sock.fileno())
+class SelectorsServer(BaseServer):
+    def __init__(self, address, cpu=False):
+        super(SelectorsServer, self).__init__(address=address, cpu=cpu)
+        self.listener.setblocking(False)
+        self.sel = selectors.DefaultSelector()
+        self.sel.register(self.listener.fileno(), selectors.EVENT_READ, data=self.listener)
+
+    def accept_client(self):
+        sock, addr = self.listener.accept()
+        sock.setblocking(False)
+        self.sel.register(sock.fileno(), selectors.EVENT_READ, data=sock)
+        print(f"Connection: {addr}")
+
+    def detach_client(self, sock: socket.socket):
+        self.sel.unregister(sock.fileno())
         sock.close()
         print(f'Remove: {sock}')
 
-
-def startup_server(ip, port):
-    server = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
-    server.bind((ip, port))
-    server.setblocking(False)
-    server.listen()
-
-    sel = selectors.DefaultSelector()
-    sel.register(server.fileno(), selectors.EVENT_READ, data=(accept_connect, server, sel))
-    while True:
-        event_list = sel.select()
-        for key, mask in event_list:
-            # fileobj, (reader, writer) = key.fileobj, key.data
-            cb, *args = key.data
-            cb(*args)
+    def start_sering(self):
+        while True:
+            event_list = self.sel.select()  # control
+            for key, mask in event_list:
+                sock = key.data
+                if sock is self.listener:
+                    self.accept_client()
+                else:
+                    if data := sock.recv(1024):
+                        self.echo(sock, data)
+                    else:
+                        self.detach_client(sock)
 
 
 if __name__ == '__main__':
-    startup_server('', 6666)
+    server = SelectorsServer(("127.0.0.1", 6666))
+    server.start_sering()

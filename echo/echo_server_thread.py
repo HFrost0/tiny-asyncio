@@ -16,9 +16,7 @@ class ThreadServer(BaseServer):
 
     def handler(self, s: socket.socket):
         while data := s.recv(1024):
-            s.send(data)
-            # sum(range(100000))  # cpu bound task
-            print(f'Echo: {data}')
+            self.echo(s, data)
         s.close()
         print(f'Remove: {s}')
 

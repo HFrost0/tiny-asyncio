@@ -1,34 +1,39 @@
 import socket
 import select
 
+from echo.base_server import BaseServer
 
-def startup_server(ip, port):
-    server = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
-    server.bind((ip, port))
-    server.setblocking(False)
-    server.listen()
 
-    readers = [server]
-    while True:
-        readable, writeable, errored = select.select(readers, [], [])
-        # readable, writeable, errored = select.select(readers, [], [], 0.5)  # this will run once every 0.5 sec
-        for s in readable:
-            if s is server:
-                client, addr = s.accept()
-                client.setblocking(False)
-                readers.append(client)
-                print(f'Connection: {addr}')
-            else:  # client want to send to server
-                data = s.recv(1024)
-                if data:
-                    # sum(range(100000))  # cpu bound task
-                    s.send(data)  # echo back
-                    print(f'Echo: {data}')
-                else:
-                    print(f'Remove: {s}')
-                    s.close()
-                    readers.remove(s)
+class SelectServer(BaseServer):
+    def __init__(self, address, cpu=False):
+        super(SelectServer, self).__init__(address, cpu)
+        self.readers = [self.listener]
+
+    def accept_client(self):
+        client, addr = self.listener.accept()
+        client.setblocking(False)
+        self.readers.append(client)
+        print(f'Connection: {addr}')
+
+    def detach_client(self, sock: socket.socket):
+        sock.close()
+        self.readers.remove(sock)
+        print(f'Remove: {sock}')
+
+    def start_sering(self):
+        while True:
+            readable, writeable, errored = select.select(self.readers, [], [])
+            # readable, writeable, errored = select.select(readers, [], [], 0.5)  # this will run once every 0.5 sec
+            for s in readable:
+                if s is self.listener:
+                    self.accept_client()
+                else:  # client want to send to server
+                    if data := s.recv(1024):
+                        self.echo(s, data)
+                    else:
+                        self.detach_client(s)
 
 
 if __name__ == '__main__':
-    startup_server('', 6666)
+    server = SelectServer(('', 6666))
+    server.start_sering()
