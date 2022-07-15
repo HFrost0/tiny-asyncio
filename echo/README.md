@@ -29,6 +29,13 @@ Main thread for listening new connection, and a threadpool will be used to execu
 Setup: all the results are obtained on macOS 12.4 M1 8 core chip laptop. selector_process server will have 4 worker
 processes, and threadpool server will have a default `ThreadPoolExecutor` without worker number arg.
 
+Tables blow shows the time spent (unit: second). For detail
+
+* connect means the total connection time
+* echo means the total send and recv time
+
+connect + echo = total time consumed.
+
 ### 1k
 
 1000 client connect and then each one send 100 times.
@@ -46,6 +53,8 @@ processes, and threadpool server will have a default `ThreadPoolExecutor` withou
 |---------|--------|-----------|-------------------|--------|------------|
 | connect | ❌      | 0.4142    | 0.4698            | ❌      | 0.4155     |
 | echo    | ❌      | 16.2907   | 19.7788           | ❌      | 16.1532    |
+
+❌ means failed the test, for the reason:
 
 * select server failed because of the limit of maximum 1024 fd number of `select`.
 * thread server failed because of too many thread created.
