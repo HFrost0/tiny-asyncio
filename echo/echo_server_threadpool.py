@@ -8,7 +8,7 @@ class ThreadPoolServer(ThreadServer):
         super(ThreadPoolServer, self).__init__(address, cpu)
         self.pool = ThreadPoolExecutor()
 
-    def start_sering(self):
+    def start_serving(self):
         while True:
             s, addr = self.listener.accept()
             print(f'Connection: {addr}')
@@ -17,4 +17,4 @@ class ThreadPoolServer(ThreadServer):
 
 if __name__ == '__main__':
     server = ThreadPoolServer()
-    server.start_sering()
+    server.start_serving()

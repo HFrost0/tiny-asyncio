@@ -8,7 +8,7 @@ from echo.base_server import BaseServer
 
 
 class ThreadServer(BaseServer):
-    def start_sering(self):
+    def start_serving(self):
         while True:
             s, addr = self.listener.accept()
             print(f'Connection: {addr}')
@@ -23,4 +23,4 @@ class ThreadServer(BaseServer):
 
 if __name__ == '__main__':
     server = ThreadServer(("127.0.0.1", 6666))
-    server.start_sering()
+    server.start_serving()

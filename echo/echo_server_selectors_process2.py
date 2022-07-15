@@ -14,7 +14,7 @@ class SelectorsProcess2Server(BaseServer):
         self.num_workers = num_workers
         self.lock = mp.Lock()
 
-    def start_sering(self):
+    def start_serving(self):
         workers = []
         for i in range(self.num_workers):
             p = mp.Process(target=worker, args=(self.listener, self.lock, self.cpu))
@@ -53,4 +53,4 @@ def worker(server: socket.socket, lock: mp.Lock, cpu=False):
 
 if __name__ == '__main__':
     server = SelectorsProcess2Server(('127.0.0.1', 6666), cpu=True)
-    server.start_sering()
+    server.start_serving()

@@ -11,7 +11,7 @@ class SelectorsProcessServer(SelectorsServer):
         super(SelectorsProcessServer, self).__init__(address, cpu)
         self.num_workers = num_workers
 
-    def start_sering(self):
+    def start_serving(self):
         sema1 = mp.Semaphore(0)
         sema2 = mp.Semaphore(0)
         for i in range(self.num_workers):
@@ -48,4 +48,4 @@ def worker(server: socket.socket, sema: mp.Semaphore, sema2: mp.Semaphore, cpu):
 
 if __name__ == '__main__':
     server = SelectorsProcessServer(('127.0.0.1', 6666), cpu=True)
-    server.start_sering()
+    server.start_serving()

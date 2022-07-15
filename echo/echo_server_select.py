@@ -20,7 +20,7 @@ class SelectServer(BaseServer):
         self.readers.remove(sock)
         print(f'Remove: {sock}')
 
-    def start_sering(self):
+    def start_serving(self):
         while True:
             readable, writeable, errored = select.select(self.readers, [], [])
             # readable, writeable, errored = select.select(readers, [], [], 0.5)  # this will run once every 0.5 sec
@@ -36,4 +36,4 @@ class SelectServer(BaseServer):
 
 if __name__ == '__main__':
     server = SelectServer(('', 6666))
-    server.start_sering()
+    server.start_serving()

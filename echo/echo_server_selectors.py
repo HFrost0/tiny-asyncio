@@ -22,7 +22,7 @@ class SelectorsServer(BaseServer):
         sock.close()
         print(f'Remove: {sock}')
 
-    def start_sering(self):
+    def start_serving(self):
         while True:
             event_list = self.sel.select()  # control
             for key, mask in event_list:
@@ -38,4 +38,4 @@ class SelectorsServer(BaseServer):
 
 if __name__ == '__main__':
     server = SelectorsServer(("127.0.0.1", 6666))
-    server.start_sering()
+    server.start_serving()
